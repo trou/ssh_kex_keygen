@@ -1,0 +1,28 @@
+This tool retrieves the shared secret computed during the Diffie Hellman exchange
+in SSH communications.
+This only works if one of the two ends uses OpenSSH and was vulnerable to the Debian 
+OpenSSL PRNG vulnerability.
+
+To use it you have to extract the parameters yourself from a session and pass them on the command line.
+
+If the client is vulnerable you will need :
+	- the public key (from the DH) sent by the client
+	- the DH group information : p and g (sent by the server, or defined in the RFC)
+	- the private key size (derived from the ciphers and hmac key/block sizes, multiplied by 2, usually 256 or 512 bits)
+
+If the server is vulnerable and uses DSA, you will need the same information.
+If the server is vulnerable and uses RSA, you will need the same information plus the RSA host key modulus .
+
+Check samples.txt to see how to parse the infos.
+
+The real encryption key is derived from all the informations exchanged before starting the encryption.
+You'll have to develop that part yourself (check kexdh.c in openssh)
+
+OpenSSL patch is against this version :
+3a7ff24f6ea5cd711984722ad654b927  openssl-0.9.8e.tar.gz
+
+Thanks to Julien Tinnes and Yoann Guillot for help, support and lantiponnism.
+
+Mail : devel-ssh
+Domain : syscall.eu
+

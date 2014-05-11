@@ -1,0 +1,56 @@
+--- openssl-0.9.8e/crypto/rand/md_rand.c	2007-01-21 14:16:36.000000000 +0100
++++ md_rand.c	2008-05-27 14:13:59.000000000 +0200
+@@ -140,6 +140,7 @@
+ static long md_count[2]={0,0};
+ static double entropy=0;
+ static int initialized=0;
++static volatile int stirred_pool = 0;
+ 
+ static unsigned int crypto_lock_rand = 0; /* may be set only when a thread
+                                            * holds CRYPTO_LOCK_RAND
+@@ -177,14 +178,17 @@
+ 
+ static void ssleay_rand_cleanup(void)
+ 	{
+-	OPENSSL_cleanse(state,sizeof(state));
++	//OPENSSL_cleanse(state,sizeof(state));
++	memset(state, 0, sizeof(state));
+ 	state_num=0;
+ 	state_index=0;
+-	OPENSSL_cleanse(md,MD_DIGEST_LENGTH);
++	//OPENSSL_cleanse(md,MD_DIGEST_LENGTH);
++	memset(md, 0, MD_DIGEST_LENGTH);
+ 	md_count[0]=0;
+ 	md_count[1]=0;
+ 	entropy=0;
+ 	initialized=0;
++	stirred_pool = 0;
+ 	}
+ 
+ static void ssleay_rand_add(const void *buf, int num, double add)
+@@ -271,7 +275,7 @@
+ 		else
+ 			MD_Update(&m,&(state[st_idx]),j);
+ 			
+-		MD_Update(&m,buf,j);
++		//MD_Update(&m,buf,j);
+ 		MD_Update(&m,(unsigned char *)&(md_c[0]),sizeof(md_c));
+ 		MD_Final(&m,local_md);
+ 		md_c[1]++;
+@@ -320,7 +324,6 @@
+ 
+ static int ssleay_rand_bytes(unsigned char *buf, int num)
+ 	{
+-	static volatile int stirred_pool = 0;
+ 	int i,j,k,st_num,st_idx;
+ 	int num_ceil;
+ 	int ok;
+@@ -465,7 +468,7 @@
+ 		MD_Update(&m,local_md,MD_DIGEST_LENGTH);
+ 		MD_Update(&m,(unsigned char *)&(md_c[0]),sizeof(md_c));
+ #ifndef PURIFY
+-		MD_Update(&m,buf,j); /* purify complains */
++	//	MD_Update(&m,buf,j); /* purify complains */
+ #endif
+ 		k=(st_idx+MD_DIGEST_LENGTH/2)-st_num;
+ 		if (k > 0)

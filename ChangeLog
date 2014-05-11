@@ -1,0 +1,9 @@
+08/07/2008 - v1.1
+	- compute DH shared secret
+	- try also child_pid == parent_pid with -h to handle sshd in debug
+	mode
+	- don't parse group info, require P and G directly
+	- code cleanups
+
+27/06/2008 - v1.0
+	- Initial release
